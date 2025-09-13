@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gown Style Guess Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  text-align: center;
+  background-color: #111;
+  padding: 25px;
+  border-radius: 15px;
+  width: 420px;
+  box-shadow: 0 0 15px #12ba42;
+}
+
+h1 {
+  color: #12ba42;
+  margin-bottom: 10px;
+}
+
+.subtext {
+  font-size: 14px;
+  margin-bottom: 15px;
+  color: #ddd;
+}
+
+.search-box {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-box input {
+  padding: 10px;
+  width: 70%;
+  border: 2px solid #12ba42;
+  border-radius: 8px 0 0 8px;
+  outline: none;
+  font-size: 16px;
+  background-color: #222;
+  color: #fff;
+}
+
+.search-box button {
+  padding: 10px 15px;
+  background-color: #12ba42;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  transition: 0.2s;
+}
+
+.search-box button:hover {
+  background-color: #53f782;
+}
+
+.result-box {
+  margin-top: 15px;
+  padding: 10px;
+}
+
+.result-box img {
+  width: 100%;
+  max-height: 260px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #12ba42;
+  margin-bottom: 12px;
+}
+
+.result-box h2 {
+  color: #12ba42;
+  margin-bottom: 5px;
+}
+
+.result-box p {
+  color: #ccc;
+  font-size: 14px;
+}
+
+.error {
+  color: #ff4444;
+  font-weight: bold;
+  margin-top: 10px;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌿 Browse Plant by Name 🌿</h1>
+    <p class="subtext">Type the plant name and click search</p>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Enter gown style..." />
+      <button onclick="searchPlant()">Search</button>
+    </div>
+
+    <div id="result" class="result-box"></div>
+  </div>
+  
+  <div id="contact">
+    <form action="#">
+      
+    </form>
+  </div>
+
+  <script>
+// just 20 for now
+const plants = new Map([
+  ["rose", { img: "images/rose.jpg", desc: "A flowering plant known for its layered petals and fragrance, cultivated for centuries as a symbol of love and beauty." }],
+  ["sunflower", { img: "sunflower.jpg", desc: "Tall annual with large yellow blooms that track the sun, native to the Americas and domesticated for seeds and oil." }],
+  ["oak", { img: "images/oak.jpg", desc: "Long-lived hardwood tree, central to many ecosystems and mythologies, with acorns that feed wildlife." }],
+  ["maple", { img: "images/maple.jpg", desc: "Deciduous tree famous for its lobed leaves and sweet sap, used for maple syrup by Indigenous peoples of North America." }],
+  ["lotus", { img: "images/lotus.jpg", desc: "Aquatic plant with floating leaves and sacred blossoms, revered in Asian religions for purity and resilience." }],
+  ["fern", { img: "images/fern.jpg", desc: "Ancient spore-bearing plant with feathery fronds, dating back over 350 million years to the Carboniferous period." }],
+  ["moss", { img: "images/moss.jpg", desc: "Small non-vascular plant forming lush green carpets, among the earliest colonizers of land surfaces." }],
+  ["pine", { img: "images/pine.jpg", desc: "Evergreen conifer with needle-like leaves and cones, adapted to diverse climates and vital for timber." }],
+  ["bamboo", { img: "images/bamboo.jpg", desc: "Fast-growing grass with hollow stems, culturally significant in Asia and used for construction and tools." }],
+  ["cactus", { img: "images/cactus.jpg", desc: "Succulent plant adapted to deserts, storing water in thick stems and bearing spines instead of leaves." }],
+  ["baobab", { img: "images/baobab.jpg", desc: "Iconic African tree with massive trunks storing water, known as the 'tree of life' for its many uses." }],
+  ["willow", { img: "images/willow.jpg", desc: "Graceful tree with drooping branches, long associated with water and healing properties in folklore." }],
+  ["gingko", { img: "images/gingko.jpg", desc: "A 'living fossil' tree species, unchanged for 200 million years, with fan-shaped leaves and medicinal uses." }],
+  ["lavender", { img: "images/lavender.jpg", desc: "Fragrant herb with purple flowers, cultivated for oils and long valued for its calming effects." }],
+  ["orchid", { img: "images/orchid.jpg", desc: "Diverse family of flowering plants with complex blooms, adapted to intricate pollination strategies." }],
+  ["venus flytrap", { img: "images/venus_flytrap.jpg", desc: "Carnivorous plant with snapping leaf traps, native to North and South Carolina wetlands." }],
+  ["aloe vera", { img: "images/aloe_vera.jpg", desc: "Succulent with thick leaves storing gel, traditionally used for soothing burns and skin care." }],
+  ["sequoia", { img: "images/sequoia.jpg", desc: "Among the tallest and oldest trees on Earth, towering redwoods that can live for over 2,000 years." }],
+  ["rice", { img: "images/rice.jpg", desc: "Staple cereal crop cultivated in Asia for millennia, feeding more than half of the world’s population." }],
+  ["corn", { img: "images/corn.jpg", desc: "Domesticated maize, first cultivated in Mesoamerica, central to global agriculture and culture." }]
+]);
+
+function searchPlant() {
+  const input = document.getElementById("searchInput").value.trim().toLowerCase();
+  const resultBox = document.getElementById("result");
+
+  if (plants.has(input)) {
+    const plant = plants.get(input);
+    resultBox.innerHTML = `
+      <img src="${plant.img}" alt="${input}">
+      <h2>${capitalize(input)}</h2>
+      <p>${plant.desc}</p>
+    `;
+  } else {
+    resultBox.innerHTML = `<p class="error">No gown style found! Try another.</p>`;
+  }
+}
+
+function capitalize(str) {
+  return str.replace(/\b\w/g, char => char.toUpperCase());
+}
+  </script>
+</body>
+</html>
