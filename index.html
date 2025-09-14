@@ -150,18 +150,18 @@ const plants = new Map([
   ["corn", { img: "images/corn.jpg", desc: "Domesticated maize, first cultivated in Mesoamerica, central to global agriculture and culture." }]
 ]);
 
-// Nigerian plants – 30 more
+// Nigerian plants – more
 plants.set("yam", { img: "images/yam.jpg", desc: "A staple tuber crop in Nigeria, central to diet and culture, often celebrated during the New Yam Festival." });
 plants.set("cassava", { img: "images/cassava.jpg", desc: "Root crop used to make garri, fufu, and tapioca; introduced to West Africa in the 16th century." });
 plants.set("cocoa", { img: "images/cocoa.jpg", desc: "Cash crop tree producing cocoa beans, vital to Nigeria’s economy and global chocolate production." });
-plants.set("oil palm", { img: "images/oil_palm.jpg", desc: "Source of palm oil, long cultivated in southern Nigeria for food, trade, and cultural significance." });
+plants.set("oil palm", { img: "images/palm.jpg", desc: "Source of palm oil, long cultivated in southern Nigeria for food, trade, and cultural significance." });
 plants.set("plantain", { img: "images/plantain.jpg", desc: "Starchy banana relative, roasted, boiled, or fried as a common Nigerian dish (e.g., dodo)." });
 plants.set("okra", { img: "images/okra.jpg", desc: "Vegetable crop producing mucilaginous pods, key ingredient in Nigerian soups like okra and ogbono." });
-plants.set("egusi melon", { img: "images/egusi.jpg", desc: "Seeds from a melon species, ground into paste for soups; a rich protein source in West Africa." });
-plants.set("groundnut", { img: "images/groundnut.jpg", desc: "Also known as peanut, widely grown for snacks, oil, and the famous groundnut soup." });
-plants.set("shea tree", { img: "images/shea_tree.jpg", desc: "Produces shea nuts, from which shea butter is extracted, vital in skincare and traditional trade." });
-plants.set("kolanut", { img: "images/kolanut.jpg", desc: "Bitter caffeine-rich nut, important in Igbo and Yoruba ceremonies of hospitality and respect." });
-plants.set("bitterleaf", { img: "images/bitterleaf.jpg", desc: "Leafy vegetable used in soups like onugbu, also applied medicinally for digestive health." });
+plants.set("egusi melon", { img: "images/melon.jpg", desc: "Seeds from a melon species, ground into paste for soups; a rich protein source in West Africa." });
+plants.set("groundnut", { img: "images/g_nut.jpg", desc: "Also known as peanut, widely grown for snacks, oil, and the famous groundnut soup." });
+plants.set("shea tree", { img: "images/shea.jpg", desc: "Produces shea nuts, from which shea butter is extracted, vital in skincare and traditional trade." });
+plants.set("kolanut", { img: "images/kola_nut.jpg", desc: "Bitter caffeine-rich nut, important in Igbo and Yoruba ceremonies of hospitality and respect." });
+plants.set("bitterleaf", { img: "images/bitter_leaf.jpg", desc: "Leafy vegetable used in soups like onugbu, also applied medicinally for digestive health." });
 plants.set("ugu", { img: "images/ugu.jpg", desc: "Fluted pumpkin, cultivated for its edible leaves, a major ingredient in Nigerian vegetable soups." });
 plants.set("sorghum", { img: "images/sorghum.jpg", desc: "Cereal crop used in tuwo, pap, and traditional brewing, adapted to dry climates." });
 plants.set("millet", { img: "images/millet.jpg", desc: "Ancient grain grown in northern Nigeria, ground into flour for porridge and traditional dishes." });
@@ -170,10 +170,10 @@ plants.set("tamarind", { img: "images/tamarind.jpg", desc: "Tree with sour pods 
 plants.set("guava", { img: "images/guava.jpg", desc: "Tropical fruit tree with sweet pulp, widely grown in Nigeria for food and nutrition." });
 plants.set("mango", { img: "images/mango.jpg", desc: "Seasonal fruit tree, beloved for its juicy varieties; cultivated across Nigeria." });
 plants.set("pawpaw", { img: "images/pawpaw.jpg", desc: "Also called papaya; fruits and leaves are used for food and herbal medicine." });
-plants.set("pear", { img: "images/african_pear.jpg", desc: "African pear (ube), roasted or boiled and eaten with maize, rich in healthy fats." });
+plants.set("pear", { img: "images/pear.jpg", desc: "African pear (ube), roasted or boiled and eaten with maize, rich in healthy fats." });
 plants.set("locust bean", { img: "images/locust_bean.jpg", desc: "Seeds fermented into 'iru' or 'dawadawa', a seasoning with a strong savory taste." });
 plants.set("morning glory yam", { img: "images/wild_yam.jpg", desc: "Wild yam species used traditionally for food and medicinal purposes." });
-plants.set("alligator pepper", { img: "images/alligator_pepper.jpg", desc: "Spice and ritual plant, used in traditional ceremonies and medicine." });
+plants.set("alligator pepper", { img: "images/a_pepper.jpg", desc: "Spice and ritual plant, used in traditional ceremonies and medicine." });
 plants.set("scent leaf", { img: "images/scent_leaf.jpg", desc: "Aromatic herb used in pepper soup and stews, also valued for its antimicrobial properties." });
 plants.set("ginger", { img: "images/ginger.jpg", desc: "Spice and medicinal rhizome, widely grown in northern Nigeria for local and export use." });
 plants.set("turmeric", { img: "images/turmeric.jpg", desc: "Golden spice related to ginger, cultivated for culinary and medicinal uses." });
@@ -192,7 +192,7 @@ function searchPlant() {
       <p>${plant.desc}</p>
     `;
   } else {
-    resultBox.innerHTML = `<p class="error">No gown style found! Try another.</p>`;
+    resultBox.innerHTML = `<p class="error">Plant not found! Will be added soon. Try another.</p>`;
   }
 }
 
