@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gown Style Guess Game</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>🌱 Plant Explorer Game 🌱</title>
   <style>
 /* Reset */
 * {
@@ -21,6 +20,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  padding: 15px;
 }
 
 .container {
@@ -28,13 +28,16 @@ body {
   background-color: #111;
   padding: 25px;
   border-radius: 15px;
-  width: 420px;
+  width: 100%;
+  max-width: 500px;
   box-shadow: 0 0 15px #12ba42;
+  position: relative;
 }
 
 h1 {
   color: #12ba42;
   margin-bottom: 10px;
+  font-size: 24px;
 }
 
 .subtext {
@@ -46,7 +49,8 @@ h1 {
 .search-box {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  position: relative;
 }
 
 .search-box input {
@@ -76,9 +80,37 @@ h1 {
   background-color: #53f782;
 }
 
+/* Suggestions */
+.suggestions {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  right: 30%;
+  background: #222;
+  border: 1px solid #12ba42;
+  border-radius: 0 0 8px 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  display: none;
+  z-index: 10;
+}
+
+.suggestions div {
+  padding: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.suggestions div:hover {
+  background: #12ba42;
+  color: #000;
+}
+
+/* Result Box */
 .result-box {
   margin-top: 15px;
   padding: 10px;
+  min-height: 100px;
 }
 
 .result-box img {
@@ -104,101 +136,253 @@ h1 {
   font-weight: bold;
   margin-top: 10px;
 }
+
+/* Favorites */
+.favorites {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.favorites h3 {
+  margin-bottom: 8px;
+  color: #12ba42;
+}
+
+.favorites-list {
+  list-style: none;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.favorites-list li {
+  padding: 5px;
+  border-bottom: 1px solid #222;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.favorites-list button {
+  background: none;
+  border: none;
+  color: #ff4444;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #111;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 0 15px #12ba42;
+}
+
+.modal-content img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.close-btn {
+  background: #12ba42;
+  border: none;
+  padding: 8px 15px;
+  margin-top: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #000;
+}
+button {
+  padding: 15px 20px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(160deg, #12ba42, #53f782);
+}
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>🌿 Browse Plant by Name 🌿</h1>
-    <p class="subtext">Type the plant name and click search</p>
+    <h1>🌿 Plant Explorer 🌿</h1>
+    <p class="subtext">Type a plant name and explore details</p>
 
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Enter gown style..." />
+      <input type="text" id="searchInput" placeholder="Enter plant name..." onkeyup="showSuggestions()" />
       <button onclick="searchPlant()">Search</button>
+      <div id="suggestions" class="suggestions"></div>
     </div>
 
+    <button onclick="randomPlant()"> Random Plant</button>
     <div id="result" class="result-box"></div>
+
+    <div class="favorites">
+      <h3>⭐ Your Favorites</h3>
+      <ul id="favoritesList" class="favorites-list"></ul>
+    </div>
   </div>
-  
-  <div id="contact">
-    <form action="#">
-      
-    </form>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <div id="modal-body"></div>
+      <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
   </div>
 
   <script>
-// just 20 for now
-const plants = new Map([
-  ["rose", { img: "images/rose.jpg", desc: "A flowering plant known for its layered petals and fragrance, cultivated for centuries as a symbol of love and beauty." }],
-  ["sunflower", { img: "images/sunflower.jpg", desc: "Tall annual with large yellow blooms that track the sun, native to the Americas and domesticated for seeds and oil." }],
-  ["oak", { img: "images/oak.jpg", desc: "Long-lived hardwood tree, central to many ecosystems and mythologies, with acorns that feed wildlife." }],
-  ["maple", { img: "images/maple_leaf.jpg", desc: "Deciduous tree famous for its lobed leaves and sweet sap, used for maple syrup by Indigenous peoples of North America." }],
-  ["lotus", { img: "images/lotus_f.jpg", desc: "Aquatic plant with floating leaves and sacred blossoms, revered in Asian religions for purity and resilience." }],
-  ["fern", { img: "images/fern.jpg", desc: "Ancient spore-bearing plant with feathery fronds, dating back over 350 million years to the Carboniferous period." }],
-  ["moss", { img: "images/moss.jpg", desc: "Small non-vascular plant forming lush green carpets, among the earliest colonizers of land surfaces." }],
-  ["pine", { img: "images/pine.jpg", desc: "Evergreen conifer with needle-like leaves and cones, adapted to diverse climates and vital for timber." }],
-  ["bamboo", { img: "images/bamboo.jpg", desc: "Fast-growing grass with hollow stems, culturally significant in Asia and used for construction and tools." }],
-  ["cactus", { img: "images/cactus.jpg", desc: "Succulent plant adapted to deserts, storing water in thick stems and bearing spines instead of leaves." }],
-  ["baobab", { img: "images/baobab.jpg", desc: "Iconic African tree with massive trunks storing water, known as the 'tree of life' for its many uses." }],
-  ["willow", { img: "images/willow.jpg", desc: "Graceful tree with drooping branches, long associated with water and healing properties in folklore." }],
-  ["gingko", { img: "images/gingko.jpg", desc: "A 'living fossil' tree species, unchanged for 200 million years, with fan-shaped leaves and medicinal uses." }],
-  ["lavender", { img: "images/lavender.jpg", desc: "Fragrant herb with purple flowers, cultivated for oils and long valued for its calming effects." }],
-  ["orchid", { img: "images/orchid.jpg", desc: "Diverse family of flowering plants with complex blooms, adapted to intricate pollination strategies." }],
-  ["venus flytrap", { img: "images/venus_flytrap.jpg", desc: "Carnivorous plant with snapping leaf traps, native to North and South Carolina wetlands." }],
-  ["aloe vera", { img: "images/aloe_vera.jpg", desc: "Succulent with thick leaves storing gel, traditionally used for soothing burns and skin care." }],
-  ["sequoia", { img: "images/sequoia.jpg", desc: "Among the tallest and oldest trees on Earth, towering redwoods that can live for over 2,000 years." }],
-  ["rice", { img: "images/rice.jpg", desc: "Staple cereal crop cultivated in Asia for millennia, feeding more than half of the world’s population." }],
-  ["corn", { img: "images/corn.jpg", desc: "Domesticated maize, first cultivated in Mesoamerica, central to global agriculture and culture." }]
-]);
+const plants = new Map([  
+  ["rose", { img: "images/rose.jpg", desc: "A flowering plant known for its layered petals and fragrance, cultivated for centuries as a symbol of love and beauty." }],  
+  ["sunflower", { img: "images/sunflower.jpg", desc: "Tall annual with large yellow blooms that track the sun, native to the Americas and domesticated for seeds and oil." }],  
+  ["oak", { img: "images/oak.jpg", desc: "Long-lived hardwood tree, central to many ecosystems and mythologies, with acorns that feed wildlife." }],  
+  ["maple", { img: "images/maple_leaf.jpg", desc: "Deciduous tree famous for its lobed leaves and sweet sap, used for maple syrup by Indigenous peoples of North America." }],  
+  ["lotus", { img: "images/lotus_f.jpg", desc: "Aquatic plant with floating leaves and sacred blossoms, revered in Asian religions for purity and resilience." }],  
+  ["fern", { img: "images/fern.jpg", desc: "Ancient spore-bearing plant with feathery fronds, dating back over 350 million years to the Carboniferous period." }],  
+  ["moss", { img: "images/moss.jpg", desc: "Small non-vascular plant forming lush green carpets, among the earliest colonizers of land surfaces." }],  
+  ["pine", { img: "images/pine.jpg", desc: "Evergreen conifer with needle-like leaves and cones, adapted to diverse climates and vital for timber." }],  
+  ["bamboo", { img: "images/bamboo.jpg", desc: "Fast-growing grass with hollow stems, culturally significant in Asia and used for construction and tools." }],  
+  ["cactus", { img: "images/cactus.jpg", desc: "Succulent plant adapted to deserts, storing water in thick stems and bearing spines instead of leaves." }],  
+  ["baobab", { img: "images/baobab.jpg", desc: "Iconic African tree with massive trunks storing water, known as the 'tree of life' for its many uses." }],  
+  ["willow", { img: "images/willow.jpg", desc: "Graceful tree with drooping branches, long associated with water and healing properties in folklore." }],  
+  ["gingko", { img: "images/gingko.jpg", desc: "A 'living fossil' tree species, unchanged for 200 million years, with fan-shaped leaves and medicinal uses." }],  
+  ["lavender", { img: "images/lavender.jpg", desc: "Fragrant herb with purple flowers, cultivated for oils and long valued for its calming effects." }],  
+  ["orchid", { img: "images/orchid.jpg", desc: "Diverse family of flowering plants with complex blooms, adapted to intricate pollination strategies." }],  
+  ["venus flytrap", { img: "images/venus_flytrap.jpg", desc: "Carnivorous plant with snapping leaf traps, native to North and South Carolina wetlands." }],  
+  ["aloe vera", { img: "images/aloe_vera.jpg", desc: "Succulent with thick leaves storing gel, traditionally used for soothing burns and skin care." }],  
+  ["sequoia", { img: "images/sequoia.jpg", desc: "Among the tallest and oldest trees on Earth, towering redwoods that can live for over 2,000 years." }],  
+  ["rice", { img: "images/rice.jpg", desc: "Staple cereal crop cultivated in Asia for millennia, feeding more than half of the world’s population." }],  
+  ["corn", { img: "images/corn.jpg", desc: "Domesticated maize, first cultivated in Mesoamerica, central to global agriculture and culture." }]  
+]);  
+  
+// Nigerian plants – more  
+plants.set("yam", { img: "images/yam.jpg", desc: "A staple tuber crop in Nigeria, central to diet and culture, often celebrated during the New Yam Festival." });  
+plants.set("cassava", { img: "images/cassava.jpg", desc: "Root crop used to make garri, fufu, and tapioca; introduced to West Africa in the 16th century." });  
+plants.set("cocoa", { img: "images/cocoa.jpg", desc: "Cash crop tree producing cocoa beans, vital to Nigeria’s economy and global chocolate production." });  
+plants.set("oil palm", { img: "images/palm.jpg", desc: "Source of palm oil, long cultivated in southern Nigeria for food, trade, and cultural significance." });  
+plants.set("plantain", { img: "images/plantain.jpg", desc: "Starchy banana relative, roasted, boiled, or fried as a common Nigerian dish (e.g., dodo)." });  
+plants.set("okra", { img: "images/okra.jpg", desc: "Vegetable crop producing mucilaginous pods, key ingredient in Nigerian soups like okra and ogbono." });  
+plants.set("egusi melon", { img: "images/melon.jpg", desc: "Seeds from a melon species, ground into paste for soups; a rich protein source in West Africa." });  
+plants.set("groundnut", { img: "images/g_nut.jpg", desc: "Also known as peanut, widely grown for snacks, oil, and the famous groundnut soup." });  
+plants.set("shea tree", { img: "images/shea.jpg", desc: "Produces shea nuts, from which shea butter is extracted, vital in skincare and traditional trade." });  
+plants.set("kolanut", { img: "images/kola_nut.jpg", desc: "Bitter caffeine-rich nut, important in Igbo and Yoruba ceremonies of hospitality and respect." });  
+plants.set("bitterleaf", { img: "images/bitter_leaf.jpg", desc: "Leafy vegetable used in soups like onugbu, also applied medicinally for digestive health." });  
+plants.set("ugu", { img: "images/ugu.jpg", desc: "Fluted pumpkin, cultivated for its edible leaves, a major ingredient in Nigerian vegetable soups." });  
+plants.set("sorghum", { img: "images/sorghum.jpg", desc: "Cereal crop used in tuwo, pap, and traditional brewing, adapted to dry climates." });  
+plants.set("millet", { img: "images/millet.jpg", desc: "Ancient grain grown in northern Nigeria, ground into flour for porridge and traditional dishes." });  
+plants.set("hibiscus", { img: "images/hibiscus.jpg", desc: "Known locally as zobo; its petals are brewed into a popular tart, red drink." });  
+plants.set("tamarind", { img: "images/tamarind.jpg", desc: "Tree with sour pods used in drinks and traditional remedies across northern Nigeria." });  
+plants.set("guava", { img: "images/guava.jpg", desc: "Tropical fruit tree with sweet pulp, widely grown in Nigeria for food and nutrition." });  
+plants.set("mango", { img: "images/mango.jpg", desc: "Seasonal fruit tree, beloved for its juicy varieties; cultivated across Nigeria." });  
+plants.set("pawpaw", { img: "images/pawpaw.jpg", desc: "Also called papaya; fruits and leaves are used for food and herbal medicine." });  
+plants.set("pear", { img: "images/pear.jpg", desc: "African pear (ube), roasted or boiled and eaten with maize, rich in healthy fats." });  
+plants.set("locust bean", { img: "images/locust_bean.jpg", desc: "Seeds fermented into 'iru' or 'dawadawa', a seasoning with a strong savory taste." });  
+plants.set("morning glory yam", { img: "images/wild_yam.jpg", desc: "Wild yam species used traditionally for food and medicinal purposes." });  
+plants.set("alligator pepper", { img: "images/a_pepper.jpg", desc: "Spice and ritual plant, used in traditional ceremonies and medicine." });  
+plants.set("scent leaf", { img: "images/scent_leaf.jpg", desc: "Aromatic herb used in pepper soup and stews, also valued for its antimicrobial properties." });  
+plants.set("ginger", { img: "images/ginger.jpg", desc: "Spice and medicinal rhizome, widely grown in northern Nigeria for local and export use." });  
+plants.set("turmeric", { img: "images/turmeric.jpg", desc: "Golden spice related to ginger, cultivated for culinary and medicinal uses." });  
+plants.set("neem", { img: "images/neem.jpg", desc: "Tree with bitter leaves, long used in traditional Nigerian medicine for malaria and skin care." });  
+plants.set("cassia", { img: "images/cassia.jpg", desc: "Flowering tree with medicinal bark and leaves, common in Nigerian herbal remedies." });  
 
-// Nigerian plants – more
-plants.set("yam", { img: "images/yam.jpg", desc: "A staple tuber crop in Nigeria, central to diet and culture, often celebrated during the New Yam Festival." });
-plants.set("cassava", { img: "images/cassava.jpg", desc: "Root crop used to make garri, fufu, and tapioca; introduced to West Africa in the 16th century." });
-plants.set("cocoa", { img: "images/cocoa.jpg", desc: "Cash crop tree producing cocoa beans, vital to Nigeria’s economy and global chocolate production." });
-plants.set("oil palm", { img: "images/palm.jpg", desc: "Source of palm oil, long cultivated in southern Nigeria for food, trade, and cultural significance." });
-plants.set("plantain", { img: "images/plantain.jpg", desc: "Starchy banana relative, roasted, boiled, or fried as a common Nigerian dish (e.g., dodo)." });
-plants.set("okra", { img: "images/okra.jpg", desc: "Vegetable crop producing mucilaginous pods, key ingredient in Nigerian soups like okra and ogbono." });
-plants.set("egusi melon", { img: "images/melon.jpg", desc: "Seeds from a melon species, ground into paste for soups; a rich protein source in West Africa." });
-plants.set("groundnut", { img: "images/g_nut.jpg", desc: "Also known as peanut, widely grown for snacks, oil, and the famous groundnut soup." });
-plants.set("shea tree", { img: "images/shea.jpg", desc: "Produces shea nuts, from which shea butter is extracted, vital in skincare and traditional trade." });
-plants.set("kolanut", { img: "images/kola_nut.jpg", desc: "Bitter caffeine-rich nut, important in Igbo and Yoruba ceremonies of hospitality and respect." });
-plants.set("bitterleaf", { img: "images/bitter_leaf.jpg", desc: "Leafy vegetable used in soups like onugbu, also applied medicinally for digestive health." });
-plants.set("ugu", { img: "images/ugu.jpg", desc: "Fluted pumpkin, cultivated for its edible leaves, a major ingredient in Nigerian vegetable soups." });
-plants.set("sorghum", { img: "images/sorghum.jpg", desc: "Cereal crop used in tuwo, pap, and traditional brewing, adapted to dry climates." });
-plants.set("millet", { img: "images/millet.jpg", desc: "Ancient grain grown in northern Nigeria, ground into flour for porridge and traditional dishes." });
-plants.set("hibiscus", { img: "images/hibiscus.jpg", desc: "Known locally as zobo; its petals are brewed into a popular tart, red drink." });
-plants.set("tamarind", { img: "images/tamarind.jpg", desc: "Tree with sour pods used in drinks and traditional remedies across northern Nigeria." });
-plants.set("guava", { img: "images/guava.jpg", desc: "Tropical fruit tree with sweet pulp, widely grown in Nigeria for food and nutrition." });
-plants.set("mango", { img: "images/mango.jpg", desc: "Seasonal fruit tree, beloved for its juicy varieties; cultivated across Nigeria." });
-plants.set("pawpaw", { img: "images/pawpaw.jpg", desc: "Also called papaya; fruits and leaves are used for food and herbal medicine." });
-plants.set("pear", { img: "images/pear.jpg", desc: "African pear (ube), roasted or boiled and eaten with maize, rich in healthy fats." });
-plants.set("locust bean", { img: "images/locust_bean.jpg", desc: "Seeds fermented into 'iru' or 'dawadawa', a seasoning with a strong savory taste." });
-plants.set("morning glory yam", { img: "images/wild_yam.jpg", desc: "Wild yam species used traditionally for food and medicinal purposes." });
-plants.set("alligator pepper", { img: "images/a_pepper.jpg", desc: "Spice and ritual plant, used in traditional ceremonies and medicine." });
-plants.set("scent leaf", { img: "images/scent_leaf.jpg", desc: "Aromatic herb used in pepper soup and stews, also valued for its antimicrobial properties." });
-plants.set("ginger", { img: "images/ginger.jpg", desc: "Spice and medicinal rhizome, widely grown in northern Nigeria for local and export use." });
-plants.set("turmeric", { img: "images/turmeric.jpg", desc: "Golden spice related to ginger, cultivated for culinary and medicinal uses." });
-plants.set("neem", { img: "images/neem.jpg", desc: "Tree with bitter leaves, long used in traditional Nigerian medicine for malaria and skin care." });
-plants.set("cassia", { img: "images/cassia.jpg", desc: "Flowering tree with medicinal bark and leaves, common in Nigerian herbal remedies." });
+// Load favorites
+let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-function searchPlant() {
-  const input = document.getElementById("searchInput").value.trim().toLowerCase();
+function searchPlant(name = null) {
+  const input = name || document.getElementById("searchInput").value.trim().toLowerCase();
   const resultBox = document.getElementById("result");
-
   if (plants.has(input)) {
     const plant = plants.get(input);
     resultBox.innerHTML = `
       <img src="${plant.img}" alt="${input}">
       <h2>${capitalize(input)}</h2>
-      <p>${plant.desc}</p>
+      <p style="margin-bottom: 20px;">${plant.desc}</p>
+      <button onclick="openModal('${input}')">More Info</button>
+      <button onclick="addFavorite('${input}')">Add to Favorites</button>
     `;
   } else {
-    resultBox.innerHTML = `<p class="error">Plant not found! Will be added soon. Try another.</p>`;
+    resultBox.innerHTML = `<p class="error">Plant not found! Try another.</p>`;
   }
 }
 
 function capitalize(str) {
   return str.replace(/\b\w/g, char => char.toUpperCase());
 }
+
+function randomPlant() {
+  const keys = Array.from(plants.keys());
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  searchPlant(randomKey);
+}
+
+function addFavorite(plantName) {
+  if (!favorites.includes(plantName)) {
+    favorites.push(plantName);
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+    renderFavorites();
+  }
+}
+
+function removeFavorite(plantName) {
+  favorites = favorites.filter(fav => fav !== plantName);
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  renderFavorites();
+}
+
+function renderFavorites() {
+  const list = document.getElementById("favoritesList");
+  list.innerHTML = favorites.map(fav => `
+    <li>
+      ${capitalize(fav)} 
+      <button onclick="removeFavorite('${fav}')">x</button>
+    </li>
+  `).join("");
+}
+
+function showSuggestions() {
+  const input = document.getElementById("searchInput").value.trim().toLowerCase();
+  const suggestionBox = document.getElementById("suggestions");
+  if (!input) {
+    suggestionBox.style.display = "none";
+    return;
+  }
+  const matches = Array.from(plants.keys()).filter(p => p.includes(input));
+  if (matches.length) {
+    suggestionBox.innerHTML = matches.map(m => `<div onclick="searchPlant('${m}')">${capitalize(m)}</div>`).join("");
+    suggestionBox.style.display = "block";
+  } else {
+    suggestionBox.style.display = "none";
+  }
+}
+
+function openModal(plantName) {
+  const plant = plants.get(plantName);
+  document.getElementById("modal-body").innerHTML = `
+    <img src="${plant.img}" alt="${plantName}">
+    <h2>${capitalize(plantName)}</h2>
+    <p>${plant.desc}</p>
+    <p><em>More biological history coming soon...</em></p>
+  `;
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+// Initial render
+renderFavorites();
   </script>
 </body>
 </html>
